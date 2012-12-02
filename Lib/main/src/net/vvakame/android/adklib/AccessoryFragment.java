@@ -2,13 +2,13 @@ package net.vvakame.android.adklib;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.hardware.usb.UsbAccessory;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-
-import com.android.future.usb.UsbAccessory;
-import com.android.future.usb.UsbManager;
 
 public class AccessoryFragment extends Fragment {
 
@@ -50,10 +50,9 @@ public class AccessoryFragment extends Fragment {
 			String permissionAction = AccessoryPermissionReceiver
 					.getPermissionAction(activity);
 
-			// TODO if (Build.VERSION_CODES.HONEYCOMB_MR1 <=
-			// Build.VERSION.SDK_INT)
-			// android.hardware.usb.UsbManager
-			mUsbManager = UsbManager.getInstance(activity);
+			// TODO Honeycomb 以前は com.android.future.usb.UsbManager
+			mUsbManager = (UsbManager) activity
+					.getSystemService(Context.USB_SERVICE);
 
 			UsbAccessory[] accessoryList = mUsbManager.getAccessoryList();
 			if (accessoryList != null && accessoryList.length == 1) {

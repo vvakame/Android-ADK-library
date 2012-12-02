@@ -4,10 +4,9 @@ import net.vvakame.android.adklib.AccessoryFragment.OnAccessoryCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.usb.UsbAccessory;
+import android.hardware.usb.UsbManager;
 import android.util.Log;
-
-import com.android.future.usb.UsbAccessory;
-import com.android.future.usb.UsbManager;
 
 class AccessoryPermissionReceiver extends BroadcastReceiver {
 
@@ -32,7 +31,9 @@ class AccessoryPermissionReceiver extends BroadcastReceiver {
 		String action = intent.getAction();
 		if (permissionAction.equals(action)) {
 			// TODO チャタリング対策で syncronized が必要？
-			UsbAccessory accessory = UsbManager.getAccessory(intent);
+
+			UsbAccessory accessory = (UsbAccessory) intent
+					.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
 			if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED,
 					false)) {
 				Log.d(TAG, "permission grant for accessory " + accessory);
@@ -41,7 +42,8 @@ class AccessoryPermissionReceiver extends BroadcastReceiver {
 				Log.d(TAG, "permission denied for accessory " + accessory);
 			}
 		} else if (UsbManager.ACTION_USB_ACCESSORY_DETACHED.equals(action)) {
-			UsbAccessory accessory = UsbManager.getAccessory(intent);
+			UsbAccessory accessory = (UsbAccessory) intent
+					.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
 			mCallback.onAccessoryDisconnected(accessory);
 		}
 	}

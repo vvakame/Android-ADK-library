@@ -9,14 +9,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import net.vvakame.android.adklib.AccessoryFragment.OnAccessoryCallback;
-
+import android.hardware.usb.UsbAccessory;
+import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-
-import com.android.future.usb.UsbAccessory;
-import com.android.future.usb.UsbManager;
 
 public final class Accessory implements Closeable {
 	static final String TAG = Accessory.class.getSimpleName();
