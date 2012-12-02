@@ -13,8 +13,8 @@ class AccessoryPermissionReceiver extends BroadcastReceiver {
 
 	static final String TAG = AccessoryPermissionReceiver.class.getSimpleName();
 
-	OnAccessoryCallback mCallback;
-	UsbManager mUsbManager;
+	final OnAccessoryCallback mCallback;
+	final UsbManager mUsbManager;
 
 	public AccessoryPermissionReceiver(OnAccessoryCallback callback,
 			UsbManager usbManager) {
@@ -36,7 +36,7 @@ class AccessoryPermissionReceiver extends BroadcastReceiver {
 			if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED,
 					false)) {
 				Log.d(TAG, "permission grant for accessory " + accessory);
-				mCallback.onAccessoryConnected(mUsbManager, accessory);
+				Accessory.setupInstance(mCallback, mUsbManager, accessory);
 			} else {
 				Log.d(TAG, "permission denied for accessory " + accessory);
 			}

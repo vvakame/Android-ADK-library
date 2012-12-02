@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.vvakame.android.adklib.AccessoryFragment.OnAccessoryCallback;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
@@ -17,31 +21,38 @@ import com.android.future.usb.UsbManager;
 public final class Accessory implements Closeable {
 	static final String TAG = Accessory.class.getSimpleName();
 
-	/** データを受信するためのループ */
-	final DriverThread mDriverThread;
+	Handler mLocalHandler;
 
 	/** ADKとの入出力 */
 	final ParcelFileDescriptor mParcelFileDescriptor;
-	final InputStream mIs;
-	final OutputStream mOs;
+	final InputStream mInputStream;
+	final OutputStream mOutputStream;
 
-	Accessory(UsbManager usbManager, UsbAccessory accessory)
-			throws IllegalStateException {
+	@SuppressWarnings("resource")
+	static void setupInstance(OnAccessoryCallback callback,
+			UsbManager usbManager, UsbAccessory accessory) {
+		new Accessory(callback, usbManager, accessory);
+	}
+
+	private Accessory(OnAccessoryCallback callback, UsbManager usbManager,
+			UsbAccessory accessory) throws IllegalStateException {
 		mParcelFileDescriptor = usbManager.openAccessory(accessory);
 		if (mParcelFileDescriptor == null) {
 			Log.e(TAG, "accessory open failed");
 			throw new IllegalStateException();
 		}
 		FileDescriptor fd = mParcelFileDescriptor.getFileDescriptor();
-		mIs = new FileInputStream(fd);
-		mOs = new FileOutputStream(fd);
+		mInputStream = new FileInputStream(fd);
+		mOutputStream = new FileOutputStream(fd);
 
-		mDriverThread = new DriverThread();
-		mDriverThread.start();
+		new LooperThread().start();
+
+		callback.onAccessoryConnected(this);
 	}
 
 	public boolean isConnected() {
-		return mDriverThread.isAlive();
+		return mLocalHandler != null
+				&& mLocalHandler.getLooper().getThread().isAlive();
 	}
 
 	@Override
@@ -51,8 +62,9 @@ public final class Accessory implements Closeable {
 			if (mParcelFileDescriptor != null) {
 				mParcelFileDescriptor.close();
 			}
-			if (mDriverThread != null) {
-				mDriverThread.disconnect();
+			if (mLocalHandler != null) {
+				mLocalHandler.getLooper().quit();
+				mLocalHandler = null;
 			}
 		} catch (IOException e) {
 			Log.e(TAG, "in close method", e);
@@ -60,30 +72,15 @@ public final class Accessory implements Closeable {
 		}
 	}
 
-	class DriverThread extends Thread {
-		boolean mRunning = true;
+	class LooperThread extends Thread {
 
 		@Override
 		public void run() {
-			int length = 0;
-			byte[] buffer = new byte[16384];
+			Looper.prepare();
 
-			while (length >= 0 && mRunning) {
-				try {
-					length = mIs.read(buffer);
-				} catch (IOException e) {
-					break;
-				}
+			mLocalHandler = new Handler();
 
-				byte[] pass = new byte[length];
-				System.arraycopy(buffer, 0, pass, 0, length);
-				// TODO リスナにコールバック
-			}
-			mRunning = false;
-		}
-
-		public void disconnect() {
-			mRunning = false;
+			Looper.loop();
 		}
 	}
 }

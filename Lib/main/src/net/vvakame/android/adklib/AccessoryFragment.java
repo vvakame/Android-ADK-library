@@ -13,8 +13,7 @@ import com.android.future.usb.UsbManager;
 public class AccessoryFragment extends Fragment {
 
 	public interface OnAccessoryCallback {
-		public void onAccessoryConnected(UsbManager usbManager,
-				UsbAccessory accessory);
+		public void onAccessoryConnected(Accessory accesory);
 
 		public void onAccessoryDisconnected(UsbAccessory accessory);
 	}
@@ -31,10 +30,6 @@ public class AccessoryFragment extends Fragment {
 	AccessoryPermissionReceiver mPermissionReceiver;
 
 	public AccessoryFragment() {
-	}
-
-	public AccessoryFragment(OnAccessoryCallback callback) {
-		mCallback = callback;
 	}
 
 	@Override
@@ -64,7 +59,7 @@ public class AccessoryFragment extends Fragment {
 			if (accessoryList != null && accessoryList.length == 1) {
 				UsbAccessory accessory = accessoryList[0];
 				if (mUsbManager.hasPermission(accessory)) {
-					mCallback.onAccessoryConnected(mUsbManager, accessory);
+					Accessory.setupInstance(mCallback, mUsbManager, accessory);
 				} else {
 					PendingIntent pendingIntent = PendingIntent.getBroadcast(
 							activity, 0, new Intent(permissionAction), 0);
