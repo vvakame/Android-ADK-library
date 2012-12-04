@@ -48,6 +48,10 @@ public final class Accessory implements Closeable {
 		callback.onAccessoryConnected(this);
 	}
 
+	public void write(byte... data) throws IOException {
+		mOutputStream.write(data);
+	}
+
 	public boolean isConnected() {
 		return mLocalHandler != null
 				&& mLocalHandler.getLooper().getThread().isAlive();
