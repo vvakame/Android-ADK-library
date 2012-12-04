@@ -4,10 +4,14 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="12" />
+    <uses-sdk android:targetSdkVersion="17" />
 
     <application>
         <uses-library android:name="com.android.future.usb.accessory" />
+
+        <meta-data
+            android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED"
+            android:resource="@xml/accessory_filter" />
     </application>
 
 </manifest>
