@@ -85,4 +85,18 @@ public final class Accessory implements Closeable {
 			Looper.loop();
 		}
 	}
+
+	/**
+	 * @return the inputStream
+	 */
+	public InputStream getInputStream() {
+		return mInputStream;
+	}
+
+	/**
+	 * @return the outputStream
+	 */
+	public OutputStream getOutputStream() {
+		return mOutputStream;
+	}
 }
